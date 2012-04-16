@@ -1,8 +1,2 @@
 content     privly    chrome/content/
 content     privly    chrome/content/ contentaccessible=yes
-overlay chrome://browser/content/browser.xul chrome://privly/content/browser.xul
-
-locale	privly	en-US	locale/en-US/
-
-skin	privly	classic/1.0	skin/
-style	chrome://global/content/customizeToolbar.xul	chrome://privly/skin/skin.css
