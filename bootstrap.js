@@ -244,6 +244,43 @@ const STYLESHEETS = [
   "privly.css"
 ];
 
+const PREF_BRANCH = "extensions.privly.";
+const PREFS = {
+  /*
+   * I felt there should be only one variable controlling extension mode instead of two varialbes - like norequests and require-clickthrough
+   * extensionMode takes 3 values - 0,1 and 2
+   * extensionMode=0 - default mode - replaces content automatically.(active mode)
+   * extensionMode=1 - extension loads content on the host page only when clicked(passive mode)
+   * extensionMode=2 - extension doesn't load content on the host page automatically - But, when you click on the link, takes to the priv.ly page in a new tab(require-clickthrough)
+   * extensionMode=3 - no requests sent to the server - when the server is down and we don't want any further requests to the server.(disabled)
+  */
+  extensionMode: 0,
+  // disablePosts - when we don't want the extension to post content to the server.
+  disablePosts: false,
+  // all posts default to public
+  allPostsPublic: false,
+  // Where to store posts, for testing use "http://localhost:3000"https://priv.ly
+  contentServerUrl: "https://priv.ly",
+  // firstRun: true,
+};
+
+function setDefaultPrefs() {
+  let branch = Services.prefs.getDefaultBranch(PREF_BRANCH);
+  for (let [key, val] in Iterator(PREFS)) {
+    switch (typeof val) {
+      case "boolean":
+        branch.setBoolPref(key, val);
+        break;
+      case "number":
+        branch.setIntPref(key, val);
+        break;
+      case "string":
+        branch.setCharPref(key, val);
+        break;
+    }
+  }
+}
+
 function uninstallElement(window, id) {
   var doc = window.document;
   var elem = doc.getElementById(id);
@@ -294,6 +331,7 @@ function installPrivlyOnWindow(window, addon) {
 }
 
 function startup(data, reason) {
+  setDefaultPrefs();
   AddonManager.getAddonByID(data.id, function(addon) {
     watchWindows(function(window) {
       installPrivlyOnWindow(window, addon);
