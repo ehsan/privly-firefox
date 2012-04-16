@@ -147,6 +147,23 @@ function unload(callback, container) {
   return removeUnloader;
 }
 
+/**
+ * Load various packaged styles for the add-on and undo on unload
+ *
+ * @usage loadStyles(addon, styles): Load specified styles
+ * @param [object] addon: Add-on object from AddonManager
+ * @param [array of strings] styles: Style files to load
+ */
+function loadStyles(addon, styles) {
+  let sss = Cc["@mozilla.org/content/style-sheet-service;1"].
+            getService(Ci.nsIStyleSheetService);
+  styles.forEach(function(fileName) {
+    let fileURI = addon.getResourceURI("styles/" + fileName + ".css");
+    sss.loadAndRegisterSheet(fileURI, sss.USER_SHEET);
+    unload(function() sss.unregisterSheet(fileURI, sss.USER_SHEET));
+  });
+}
+
 const SCRIPTS = [
   { id: "privly_ehi", url: "extension-host-intrface.js" },
   { id: "privly_obs", url: "observers.js" },
@@ -223,6 +240,10 @@ const ELEMENTS = [
   },
 ];
 
+const STYLESHEETS = [
+  "privly.css"
+];
+
 function uninstallElement(window, id) {
   var doc = window.document;
   var elem = doc.getElementById(id);
@@ -269,6 +290,7 @@ function installPrivlyOnWindow(window, addon) {
     var elem = ELEMENTS[i];
     installElement(window, elem.parent, elem.tag, elem.attrs, elem.insertafter);
   }
+  loadStyles(addon, STYLESHEETS);
 }
 
 function startup(data, reason) {
